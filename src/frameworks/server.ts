@@ -1,16 +1,17 @@
 import "reflect-metadata";
-import express from "express";
+import express, { Router } from "express";
 import cors from "cors";
 import "dotenv/config";
 import { AppDataSource } from "@/src/infrastructure/database.js";
-import routes from "@/src/frameworks/routes.js";
+import  routes  from "@/src/frameworks/routes.js";
 import { Logger } from "@/src/shared/logger.js";
+import router from "@/src/frameworks/routes.js";
 
 const app =express();
 app.use(cors({origin:"http://localhost:3000"}));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use("/api",routes);
+app.use("/api/hrms",router);
 app.get("/",
     (_req, res) => {
 
