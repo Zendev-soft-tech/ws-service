@@ -25,6 +25,12 @@ export enum LeaveStatus {
     REJECTED = "Rejected"
 }
 
+export enum PermissionStatus {
+    PENDING = "Pending",
+    APPROVED = "Approved",
+    REJECTED = "Rejected"
+}
+
 export enum Gender {
     MALE = "Male",
     FEMALE = "Female",

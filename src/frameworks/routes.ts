@@ -7,7 +7,9 @@ import * as locationController from "@/src/adapters/controllers/locationControll
 import * as attendanceController from "@/src/adapters/controllers/attendanceController.js";
 import * as leaveController from "@/src/adapters/controllers/leaveController.js";
 import * as salaryController from "@/src/adapters/controllers/salaryController.js";
-import { authMiddleware, hrAdminMiddleware } from "@/src/frameworks/middleware.js";
+import * as permissionController from "@/src/adapters/controllers/permissionController.js"
+import { authMiddleware, hrAdminMiddleware ,employeeMiddleware} from "@/src/frameworks/middleware.js";
+
 
 const router = Router();
 
@@ -21,7 +23,7 @@ router.put("/users/:id", authMiddleware, userController.update);
 router.delete("/users/:id", authMiddleware, userController.remove);
 
 /* EMPLOYEE */
-router.post("/employees", authMiddleware, employeeController.create);
+router.post("/employees", authMiddleware,hrAdminMiddleware, employeeController.create);
 router.get("/employees", authMiddleware, employeeController.getAll);
 router.get("/employees/:id", authMiddleware, employeeController.getOne);
 router.get("/employees/email/:email", authMiddleware, employeeController.getByEmail);
@@ -76,6 +78,14 @@ router.get("/leaves/status/:status", authMiddleware, leaveController.getLeavesBy
 router.get("/leaves/balance/:employeeId", authMiddleware, leaveController.getLeaveBalanceController);
 router.patch("/leaves/:id/approve", authMiddleware, hrAdminMiddleware, leaveController.approveLeaveController);
 router.patch("/leaves/:id/reject", authMiddleware, hrAdminMiddleware, leaveController.rejectLeaveController);
+
+/* PERMISSION */
+router.post("/permissions", authMiddleware, employeeMiddleware, permissionController.create);
+router.get("/permissions", authMiddleware, permissionController.getAll);
+router.get("/permissions/:id", authMiddleware, permissionController.getById);
+router.get("/permissions/employee/:employeeId", authMiddleware, permissionController.getByEmployee);
+router.patch("/permissions/:id/approve", authMiddleware, hrAdminMiddleware, permissionController.approve);
+router.patch("/permissions/:id/reject", authMiddleware, hrAdminMiddleware, permissionController.reject);
 
 /* SALARY */
 router.post("/salaries", authMiddleware, salaryController.create);

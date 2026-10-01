@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import type { AuthRequest } from "@/src/frameworks/middleware.js";
 import { LeaveRepository } from "@/src/adapters/repositories/leaveRepository.js";
 import { ApplyLeave } from "@/src/application/usecases/leave/ApplyLeave.js";
 import { GetLeaves } from "@/src/application/usecases/leave/GetLeaves.js";
@@ -19,10 +20,11 @@ const approveLeave = new ApproveLeave(leaveRepository);
 const rejectLeave = new RejectLeave(leaveRepository);
 const getLeaveBalance = new GetLeaveBalance(leaveRepository);
 
-export const applyLeaveController = async (req: Request, res: Response) => {
+export const applyLeaveController = async (req: AuthRequest, res: Response) => {
     try {
-        const { employeeId, leaveType, dayType, fromDate, toDate, reason } = req.body;
-        const leave = await applyLeave.execute({ employeeId, leaveType, dayType, fromDate, toDate, reason });
+         if(!req.employeeId){return res.status(401).json({message:"Employee ID not found in token"});}
+        const { leaveType, dayType, fromDate, toDate, reason } = req.body;
+        const leave = await applyLeave.execute({ employeeId:req.employeeId, leaveType, dayType, fromDate, toDate, reason });
         return res.status(201).json({ message: "Leave applied successfully", data: leave });
     } catch (error: any) {
         return res.status(400).json({ message: error.message });
@@ -54,13 +56,12 @@ export const getLeaveByIdController = async (req: Request, res: Response) => {
     }
 };
 
-export const getLeavesByEmployeeController = async (req: Request, res: Response) => {
+export const getLeavesByEmployeeController = async (req: AuthRequest, res: Response) => {
     try {
-        const { employeeId } = req.params;
-        if (!employeeId || Array.isArray(employeeId)) {
-            return res.status(400).json({ message: "Invalid employee ID" });
-        }
-        const leaves = await getLeavesByEmployee.execute(employeeId);
+         if (!req.employeeId) {
+            return res.status(401).json({message: "Employee ID not found in token"});}
+        
+        const leaves = await getLeavesByEmployee.execute(req.employeeId);
         return res.status(200).json({ data: leaves });
     } catch (error: any) {
         return res.status(400).json({ message: error.message });
@@ -107,13 +108,12 @@ export const rejectLeaveController = async (req: Request, res: Response) => {
     }
 };
 
-export const getLeaveBalanceController = async (req: Request, res: Response) => {
+export const getLeaveBalanceController = async (req: AuthRequest, res: Response) => {
     try {
-        const { employeeId } = req.params;
-        if (!employeeId || Array.isArray(employeeId)) {
-            return res.status(400).json({ message: "Employee ID is required" });
-        }
-        const result = await getLeaveBalance.execute(employeeId);
+        if (!req.employeeId) {
+            return res.status(401).json({message: "Employee ID not found in token"});}
+        
+        const result = await getLeaveBalance.execute(req.employeeId);
         return res.status(200).json(result);
     } catch (error: any) {
         return res.status(400).json({ message: error.message });
