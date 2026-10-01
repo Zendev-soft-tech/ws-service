@@ -1,3 +1,4 @@
+
 import { HttpStatusCode } from "axios";
 import { QueryFailedError } from "typeorm";
 import { Logger } from "@/src/shared/logger.js";
@@ -30,7 +31,6 @@ export const DBError = (
     customMsg?: string,
     err?: QueryFailedError
 ): never => {
-
     Logger.error(
         `DB Error code: ${code}`
     );
@@ -40,7 +40,6 @@ export const DBError = (
             number,
             [string, number, ErrorDetails]
         > = {
-
         23505: [
             "Duplicate entry",
             StatusCode.BadRequest,
@@ -88,3 +87,4 @@ export const DBError = (
         details
     );
 };
+
