@@ -5,6 +5,7 @@ import { Designation } from "@/src/adapters/models/Designation.js";
 import { Location } from "@/src/adapters/models/Location.js";
 import { Attendance } from "@/src/adapters/models/Attendance.js";
 import { Leave } from "@/src/adapters/models/Leave.js";
+import { Permission } from "@/src/adapters/models/Permission.js";
 import {Gender,MaritalStatus,BloodGroup,UserRole,EmployeeType,EmployeeStatus,AllowanceType,DeductionType} from "@/src/application/domain/enum.js";
 
 export interface SalaryAllowance {
@@ -139,6 +140,12 @@ export class Employee {
         leave => leave.employee
     )
     leaves!: Leave[];
+
+    @OneToMany(
+    () => Permission,
+    permission => permission.employee
+    )
+    permissions!: Permission[];
 
     @Column({type: "jsonb",nullable: true})
     salary!: EmployeeSalary | null;

@@ -4,6 +4,7 @@ import { config } from "@/src/config/index.js";
 
 export interface AuthRequest extends Request {
     userId?: string;
+    employeeId?:string;
     userRole?: string;
 }
 
@@ -25,26 +26,37 @@ export const authMiddleware = (
 
         const decoded = jwt.verify(token, config.jwtSecret) as {
             userId: string;
+            employeeId:string;
             userRole: string;
         };
 
         req.userId = decoded.userId;
+        req.employeeId=decoded.employeeId;
         req.userRole = decoded.userRole;
         next();
     } catch {
         return res.status(401).json({ message: "Invalid token" });
     }
 };
+export const roleMiddleware = (...roles: string[]) => {
+    return (
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ) => {
+        if (
+            !req.userRole ||
+            !roles.includes(req.userRole)
+        ) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
 
-export const hrAdminMiddleware = (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
-) => {
-    if (req.userRole !== "HR Admin") {
-        return res.status(403).json({
-            message: "Only HR Admin can approve or reject leave"
-        });
-    }
-    next();
+        next();
+    };
 };
+
+export const hrAdminMiddleware =roleMiddleware("HR Admin");
+
+export const employeeMiddleware =roleMiddleware("Employee");

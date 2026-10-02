@@ -4,6 +4,7 @@ import type { IUserRepository } from "@/src/application/interfaces/IUserReposito
 import type { IEmployeeRepository } from "@/src/application/interfaces/IEmployeeRepository.js";
 import { config } from "@/src/config/index.js";
 
+
 export class LoginUser {
     constructor(
         private userRepository: IUserRepository,
@@ -24,12 +25,13 @@ export class LoginUser {
         }
 
         const employee = await this.employeeRepository.findByEmail(email);
-
-        const userRole = employee?.userRole ?? "Employee";
+        if(!employee){throw new Error("Employee Profile not found");}
+        const userRole=employee.userRole;
 
         const token = jwt.sign(
             {
                 userId: user.id,
+                employeeId:employee.id,
                 userRole
             },
             config.jwtSecret,

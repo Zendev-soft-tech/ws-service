@@ -7,6 +7,7 @@ import { Designation } from "@/src/adapters/models/Designation.js";
 import { Location } from "@/src/adapters/models/Location.js";
 import { Attendance } from "@/src/adapters/models/Attendance.js";
 import { Leave } from "@/src/adapters/models/Leave.js";
+import { Permission } from "@/src/adapters/models/Permission.js";
 
 import { DirectChat } from "@/src/adapters/models/DirectChat.js";
 import { DirectMessage } from "@/src/adapters/models/DirectMessage.js";
@@ -32,10 +33,6 @@ export const AppDataSource =new DataSource({
             Location,
             Attendance,
             Leave,
-            DirectChat,
-            DirectMessage,
-            GroupChat,
-            GroupMember,
-            GroupMessage
+            Permission
         ]
     });

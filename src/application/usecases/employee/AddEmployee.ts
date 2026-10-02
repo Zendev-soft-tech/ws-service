@@ -11,6 +11,9 @@ export class AddEmployee {
     async execute(
         data: any
     ) {
+        if (!data) {
+            throw new Error("Employee data is required");
+        }
 
         let employeeNumber =
             data.employeeNumber?.trim();
