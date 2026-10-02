@@ -57,34 +57,16 @@ export const DBError = (
         ]
     };
 
-    const [
-        defaultMsg,
-        errorCode,
-        details
-    ] = errorMaps[code] ?? [
-        err?.message ||
-            "Database error",
-
+    const [defaultMsg,errorCode,details] = errorMaps[code] ?? [
+        err?.message || "Database error",
         StatusCode.BadRequest,
-
         {
             dbCode: code,
             error: err
         }
     ];
-
-    const renMsg =
-        customMsg
-            ? `: ${customMsg}`
-            : "";
-
-    const msg =
-        `${defaultMsg}${renMsg}`;
-
-    throw new AppError(
-        msg,
-        errorCode,
-        details
-    );
+    const renMsg =customMsg? `: ${customMsg}`: "";
+    const msg =`${defaultMsg}${renMsg}`;
+    throw new AppError(msg,errorCode,details);
 };
 

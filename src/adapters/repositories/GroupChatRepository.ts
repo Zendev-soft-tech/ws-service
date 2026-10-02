@@ -6,28 +6,18 @@ export class GroupChatRepository
   private repository = AppDataSource.getRepository(GroupChat)
   async create(
     name: string,
-    createdBy: string
-  ): Promise<GroupChat> {
-    const group = this.repository.create({name,
-      createdBy
-    })
-
+    createdBy: string): Promise<GroupChat> {
+    const group = this.repository.create({name,createdBy })
     return await this.repository.save(group)
   }
-
   async findById(
     id: string
   ): Promise<GroupChat | null> {
-
     return await this.repository.findOne({
       where: { id }
     })
   }
-
-  async findByUserId(
-    userId: string
-  ): Promise<GroupChat[]> {
-
+  async findByUserId(userId: string): Promise<GroupChat[]> {
     return await this.repository
       .createQueryBuilder("group")
       .innerJoin(
@@ -39,29 +29,22 @@ export class GroupChatRepository
       .orderBy("group.updatedAt", "DESC")
       .getMany()
   }
-
   async update(
     id: string,
     name: string
   ): Promise<GroupChat | null> {
-
     const group = await this.repository.findOne({
       where: { id }
     })
-
     if (!group) {
       return null
     }
-
     group.name = name
-
     return await this.repository.save(group)
   }
-
   async delete(
     id: string
   ): Promise<void> {
-
     await this.repository.delete(id)
   }
 }

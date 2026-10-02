@@ -1,7 +1,6 @@
 import { AppDataSource } from "@/src/infrastructure/database.js"
 import { DirectMessage } from "@/src/adapters/models/DirectMessage.js"
 import type { IDirectMessageRepository } from "@/src/application/interfaces/IDirectMessageRepository.js"
-
 export class DirectMessageRepository
   implements IDirectMessageRepository {
   private repository = AppDataSource.getRepository(DirectMessage)
