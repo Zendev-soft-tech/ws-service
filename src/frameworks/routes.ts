@@ -407,208 +407,21 @@ const groupMemberRepository =
 const groupMessageRepository =
   new GroupMessageRepository();
 
-/* =========================================================
-   CHAT - DIRECT USE CASES
-========================================================= */
 
-// const createDirectChat =
-//   \\new CreateDirectChat(
-//     directChatRepository
-//   );
+  
+      // Chat Module //
 
-// const getDirectChats =
-//   new GetDirectChats(
-//     directChatRepository
-//   );
 
-// const getDirectChatById =
-//   new GetDirectChatById(
-//     directChatRepository
-//   );
-
-// const sendDirectMessage =
-//   new SendDirectMessage(
-//     directMessageRepository,
-//     directChatRepository
-//   );
-
-// const getDirectMessages =
-//   new GetDirectMessages(
-//     directMessageRepository,
-//     directChatRepository
-//   );
-
-// const updateDirectMessage =
-//   new UpdateDirectMessage(
-//     directMessageRepository,
-//     directChatRepository
-//   );
-
-// const deleteDirectMessage =
-//   new DeleteDirectMessage(
-//     directMessageRepository
-//   );
-
-/* =========================================================
-   CHAT - GROUP USE CASES
-========================================================= */
-
-// const createGroup =
-//   new CreateGroup(
-//     groupChatRepository,
-//     groupMemberRepository
-//   );
-
-// const getGroups =
-//   new GetGroups(
-//     groupChatRepository
-//   );
-
-// const getGroupById =
-//   new GetGroupById(
-//     groupChatRepository,
-//     groupMemberRepository
-//   );
-
-// const updateGroup =
-//   new UpdateGroup(
-//     groupChatRepository,
-//     groupMemberRepository
-//   );
-
-// const deleteGroup =
-//   new DeleteGroup(
-//     groupChatRepository,
-//     groupMemberRepository
-//   );
-
-// const addGroupMember =
-//   new AddGroupMember(
-//     groupChatRepository,
-//     groupMemberRepository
-//   );
-
-// const getGroupMembers =
-//   new GetGroupMembers(
-//     groupChatRepository,
-//     groupMemberRepository
-//   );
-
-// const updateGroupMemberRole =
-//   new UpdateGroupMemberRole(
-//     groupChatRepository,
-//     groupMemberRepository
-//   );
-
-// const removeGroupMember =
-//   new RemoveGroupMember(
-//     groupChatRepository,
-//     groupMemberRepository
-//   );
-
-// const sendGroupMessage =
-//   new SendGroupMessage(
-//     groupChatRepository,
-//     groupMemberRepository,
-//     groupMessageRepository
-//   );
-
-// const getGroupMessages =
-//   new GetGroupMessages(
-//     groupChatRepository,
-//     groupMemberRepository,
-//     groupMessageRepository
-//   );
-
-// const updateGroupMessage =
-//   new UpdateGroupMessage(
-//     groupChatRepository,
-//     groupMemberRepository,
-//     groupMessageRepository
-//   );
-
-// const deleteGroupMessage =
-//   new DeleteGroupMessage(
-//     groupMessageRepository
-//   );
-
-/* =========================================================
-   CHAT - CONTROLLERS
-========================================================= */
-
-// const directChatController =
-//   new DirectChatController(
-//     createDirectChat,
-//     getDirectChats,
-//     getDirectChatById
-//   );
-
-// const directMessageController =
-//   new DirectMessageController(
-//     sendDirectMessage,
-//     getDirectMessages,
-//     updateDirectMessage,
-//     deleteDirectMessage
-//   );
-
-// const groupChatController =
-//   new GroupChatController(
-//     createGroup,
-//     getGroups,
-//     getGroupById,
-//     updateGroup,
-//     deleteGroup
-//   );
-
-// const groupMemberController =
-//   new GroupMemberController(
-//     addGroupMember,
-//     getGroupMembers,
-//     updateGroupMemberRole,
-//     removeGroupMember
-//   );
-
-// const groupMessageController =
-//   new GroupMessageController(
-//     sendGroupMessage,
-//     getGroupMessages,
-//     updateGroupMessage,
-//     deleteGroupMessage
-//   );
 const directChatController = new DirectChatController();
-
 const directMessageController = new DirectMessageController();
-
 const groupChatController = new GroupChatController();
-
 const groupMemberController = new GroupMemberController();
-
 const groupMessageController = new GroupMessageController();
 
-router.use(
-    "/chat/direct",
-    directChatController.router
-);
-
-router.use(
-    "/chat/direct-message",
-    directMessageController.router
-);
-
-router.use(
-    "/chat/group",
-    groupChatController.router
-);
-
-router.use(
-    "/chat/group-member",
-    groupMemberController.router
-);
-
-router.use(
-    "/chat/group-message",
-    groupMessageController.router
-);
-
+router.use("/chat/direct", directChatController.router);
+router.use("/chat/direct-message", directMessageController.router);
+router.use("/chat/group",  groupChatController.router);
+router.use("/chat/group-member", groupMemberController.router);
+router.use("/chat/group-message", groupMessageController.router);
 
 export default router;
