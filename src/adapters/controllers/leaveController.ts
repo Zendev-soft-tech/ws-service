@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import { Router,type Request,type Response } from "express";
 import type { AuthRequest } from "@/src/frameworks/middleware.js";
 import { LeaveRepository } from "@/src/adapters/repositories/leaveRepository.js";
 import { ApplyLeave } from "@/src/application/usecases/leave/ApplyLeave.js";
@@ -9,113 +9,154 @@ import { GetLeavesByStatus } from "@/src/application/usecases/leave/GetLeavesByS
 import { ApproveLeave } from "@/src/application/usecases/leave/ApproveLeave.js";
 import { RejectLeave } from "@/src/application/usecases/leave/RejectLeave.js";
 import { GetLeaveBalance } from "@/src/application/usecases/leave/GetLeaveBalance.js";
+import { hrAdminMiddleware } from "@/src/frameworks/middleware.js";
+import { Logger } from "@/src/shared/logger.js";
 
-const leaveRepository = new LeaveRepository();
-const applyLeave = new ApplyLeave(leaveRepository);
-const getLeaves = new GetLeaves(leaveRepository);
-const getLeaveById = new GetLeaveById(leaveRepository);
-const getLeavesByEmployee = new GetLeavesByEmployee(leaveRepository);
-const getLeavesByStatus = new GetLeavesByStatus(leaveRepository);
-const approveLeave = new ApproveLeave(leaveRepository);
-const rejectLeave = new RejectLeave(leaveRepository);
-const getLeaveBalance = new GetLeaveBalance(leaveRepository);
+export class LeaveController {
+    public router:Router=Router({mergeParams:true});
+    private leaveRepository:LeaveRepository;
 
-export const applyLeaveController = async (req: AuthRequest, res: Response) => {
-    try {
-         if(!req.employeeId){return res.status(401).json({message:"Employee ID not found in token"});}
-        const { leaveType, dayType, fromDate, toDate, reason } = req.body;
-        const leave = await applyLeave.execute({ employeeId:req.employeeId, leaveType, dayType, fromDate, toDate, reason });
-        return res.status(201).json({ message: "Leave applied successfully", data: leave });
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
+    constructor() {
+        this.leaveRepository=new LeaveRepository();
+        this.router.post("/",this.applyHandler.bind(this));
+        this.router.get("/",this.getAllHandler.bind(this));
+        this.router.get("/employee",this.getByEmployeeHandler.bind(this));
+        this.router.get("/balance",this.getBalanceHandler.bind(this));
+        this.router.get("/status/:status",this.getByStatusHandler.bind(this));
+        this.router.get("/:id",this.getByIdHandler.bind(this));
+        this.router.patch("/:id/approve",hrAdminMiddleware,this.approveHandler.bind(this));
+        this.router.patch("/:id/reject",hrAdminMiddleware,this.rejectHandler.bind(this));
     }
-};
 
-export const getLeavesController = async (req: Request, res: Response) => {
-    try {
-        const leaves = await getLeaves.execute();
-        return res.status(200).json({ data: leaves });
-    } catch (error: any) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-
-export const getLeaveByIdController = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        if (!id || Array.isArray(id)) {
-            return res.status(400).json({ message: "Invalid leave ID" });
+    async applyHandler(req:AuthRequest,res:Response) {
+        try {
+            if(!req.employeeId) {
+                res.status(401).json({ok:false,error:"Employee ID not found in token"});
+                return;
+            }
+            const usecase=new ApplyLeave(this.leaveRepository);
+            const {leaveType,dayType,fromDate,toDate,reason}=req.body;
+            const result=await usecase.execute({
+                employeeId:req.employeeId,
+                leaveType,
+                dayType,
+                fromDate,
+                toDate,
+                reason
+            });
+            Logger.info("Leave applied successfully");
+            res.status(201).json({ok:true,data:result});
+        } catch(error:any) {
+            res.status(400).json({ok:false,error:error.message});
         }
-        const leave = await getLeaveById.execute(id);
-        if (!leave) {
-            return res.status(404).json({ message: "Leave not found" });
+    }
+
+    async getAllHandler(req:Request,res:Response) {
+        try {
+            const usecase=new GetLeaves(this.leaveRepository);
+            const result=await usecase.execute();
+            Logger.info("All leaves fetched successfully");
+            res.status(200).json({ok:true,data:result});
+        } catch(error:any) {
+            res.status(500).json({ok:false,error:error.message});
         }
-        return res.status(200).json({ data: leave });
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
     }
-};
 
-export const getLeavesByEmployeeController = async (req: AuthRequest, res: Response) => {
-    try {
-         if (!req.employeeId) {
-            return res.status(401).json({message: "Employee ID not found in token"});}
-        
-        const leaves = await getLeavesByEmployee.execute(req.employeeId);
-        return res.status(200).json({ data: leaves });
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
-    }
-};
-
-export const getLeavesByStatusController = async (req: Request, res: Response) => {
-    try {
-        const { status } = req.params;
-        if (!status || Array.isArray(status)) {
-            return res.status(400).json({ message: "Invalid leave status" });
+    async getByEmployeeHandler(req:AuthRequest,res:Response) {
+        try {
+            if(!req.employeeId) {
+                res.status(401).json({ok:false,error:"Employee ID not found in token"});
+                return;
+            }
+            const usecase=new GetLeavesByEmployee(this.leaveRepository);
+            const result=await usecase.execute(req.employeeId);
+            Logger.info(`Leaves fetched for employee: ${req.employeeId}`);
+            res.status(200).json({ok:true,data:result});
+        } catch(error:any) {
+            res.status(400).json({ok:false,error:error.message});
         }
-        const leaves = await getLeavesByStatus.execute(status);
-        return res.status(200).json({ data: leaves });
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
     }
-};
 
-export const approveLeaveController = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        if (!id || Array.isArray(id)) {
-            return res.status(400).json({ message: "Invalid leave ID" });
+    async getBalanceHandler(req:AuthRequest,res:Response) {
+        try {
+            if(!req.employeeId) {
+                res.status(401).json({ok:false,error:"Employee ID not found in token"});
+                return;
+            }
+            const usecase=new GetLeaveBalance(this.leaveRepository);
+            const result=await usecase.execute(req.employeeId);
+            Logger.info(`Leave balance fetched for employee: ${req.employeeId}`);
+            res.status(200).json({ok:true,data:result});
+        } catch(error:any) {
+            res.status(400).json({ok:false,error:error.message});
         }
-        const leave = await approveLeave.execute(id);
-        return res.status(200).json({ message: "Leave approved successfully", data: leave });
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
     }
-};
 
-export const rejectLeaveController = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        if (!id || Array.isArray(id)) {
-            return res.status(400).json({ message: "Invalid leave ID" });
+    async getByStatusHandler(req:Request,res:Response) {
+        try {
+            const status=req.params.status;
+            if(!status||Array.isArray(status)) {
+                res.status(400).json({ok:false,error:"Invalid leave status"});
+                return;
+            }
+            const usecase=new GetLeavesByStatus(this.leaveRepository);
+            const result=await usecase.execute(status);
+            Logger.info(`Leaves fetched by status: ${status}`);
+            res.status(200).json({ok:true,data:result});
+        } catch(error:any) {
+            res.status(400).json({ok:false,error:error.message});
         }
-        const { rejectionReason } = req.body;
-        const leave = await rejectLeave.execute(id, rejectionReason);
-        return res.status(200).json({ message: "Leave rejected successfully", data: leave });
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
     }
-};
 
-export const getLeaveBalanceController = async (req: AuthRequest, res: Response) => {
-    try {
-        if (!req.employeeId) {
-            return res.status(401).json({message: "Employee ID not found in token"});}
-        
-        const result = await getLeaveBalance.execute(req.employeeId);
-        return res.status(200).json(result);
-    } catch (error: any) {
-        return res.status(400).json({ message: error.message });
+    async getByIdHandler(req:Request,res:Response) {
+        try {
+            const id=req.params.id;
+            if(!id||Array.isArray(id)) {
+                res.status(400).json({ok:false,error:"Invalid leave ID"});
+                return;
+            }
+            const usecase=new GetLeaveById(this.leaveRepository);
+            const result=await usecase.execute(id);
+            if(!result) {
+                res.status(404).json({ok:false,error:"Leave not found"});
+                return;
+            }
+            Logger.info(`Leave fetched by ID: ${id}`);
+            res.status(200).json({ok:true,data:result});
+        } catch(error:any) {
+            res.status(400).json({ok:false,error:error.message});
+        }
     }
-};
+
+    async approveHandler(req:Request,res:Response) {
+        try {
+            const id=req.params.id;
+            if(!id||Array.isArray(id)) {
+                res.status(400).json({ok:false,error:"Invalid leave ID"});
+                return;
+            }
+            const usecase=new ApproveLeave(this.leaveRepository);
+            const result=await usecase.execute(id);
+            Logger.info(`Leave approved successfully: ${id}`);
+            res.status(200).json({ok:true,data:result});
+        } catch(error:any) {
+            res.status(400).json({ok:false,error:error.message});
+        }
+    }
+
+    async rejectHandler(req:Request,res:Response) {
+        try {
+            const id=req.params.id;
+            if(!id||Array.isArray(id)) {
+                res.status(400).json({ok:false,error:"Invalid leave ID"});
+                return;
+            }
+            const usecase=new RejectLeave(this.leaveRepository);
+            const result=await usecase.execute(id,req.body.rejectionReason);
+            Logger.info(`Leave rejected successfully: ${id}`);
+            res.status(200).json({ok:true,data:result});
+        } catch(error:any) {
+            res.status(400).json({ok:false,error:error.message});
+        }
+    }
+}
