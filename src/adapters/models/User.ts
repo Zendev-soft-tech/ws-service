@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from "typeorm";
-import { Employee } from "@/src/adapters/models/Employee.js";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { DirectChat } from "@/src/adapters/models/DirectChat.js";
 
 @Entity("users")
 export class User {
@@ -11,4 +11,10 @@ export class User {
 
     @Column({ type: "varchar" })
     password!: string;
+
+    @OneToMany(() => DirectChat, (directChat) => directChat.userOne)
+    directChatsAsUserOne!: DirectChat[];
+
+    @OneToMany(() => DirectChat, (directChat) => directChat.userTwo)
+    directChatsAsUserTwo!: DirectChat[];
 }

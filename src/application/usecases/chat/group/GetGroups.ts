@@ -1,13 +1,10 @@
-import type { IGroupChatRepository } from "@/src/application/interfaces/IGroupChatRepository.js"
-import { AppError } from "@/src/shared/error.js"
+import type { IGroupChatRepository } from "@/src/application/interfaces/IGroupChatRepository.js";
+import type { GroupChat } from "@/src/adapters/models/GroupChat.js";
 export class GetGroups {
-  constructor(
-    private readonly groupChatRepository: IGroupChatRepository
-  ) {}
-  async execute(userId: string) {
-    if (!userId) {
-      throw new AppError("User ID is required",400)
+    constructor(
+        private readonly groupChatRepository: IGroupChatRepository
+    ) {}
+    async execute(userId: string ): Promise<GroupChat[]> {
+        return await this.groupChatRepository.findByUserId(userId);
     }
-    return await this.groupChatRepository.findByUserId(userId)
-  }
 }
