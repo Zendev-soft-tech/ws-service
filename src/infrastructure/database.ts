@@ -33,6 +33,11 @@ export const AppDataSource =new DataSource({
             Location,
             Attendance,
             Leave,
-            Permission
+            Permission,
+            DirectChat,
+            DirectMessage,
+            GroupChat,
+            GroupMember,
+            GroupMessage
         ]
     });
