@@ -57,7 +57,7 @@ export enum BloodGroup {
 
 export enum UserRole {
     EMPLOYEE = "Employee",
-    HR_ADMIN = "HR Admin"
+    ADMIN = "Admin"
 }
 
 export enum EmployeeType {

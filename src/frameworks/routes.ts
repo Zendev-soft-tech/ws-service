@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UserController } from "@/src/adapters/controllers/userController.js";
+import { AuthController } from "@/src/adapters/controllers/authController.js";
 import { EmployeeController } from "@/src/adapters/controllers/employeeController.js";
 import { DepartmentController } from "@/src/adapters/controllers/departmentController.js";
 import { DesignationController } from "@/src/adapters/controllers/designationController.js";
@@ -14,10 +14,11 @@ import { DirectMessageController } from "../adapters/controllers/DirectMessageCo
 import { GroupChatController } from "../adapters/controllers/GroupChatController.js";
 import { GroupMemberController } from "../adapters/controllers/GroupMemberController.js";
 import { GroupMessageController } from "../adapters/controllers/GroupMessageController.js";
+import { OrganizationController } from "@/src/adapters/controllers/organizationController.js";
 
 const router : Router =Router();
 
-const userController=new UserController();
+const authController = new AuthController();
 const employeeController=new EmployeeController();
 const departmentController=new DepartmentController();
 const designationController=new DesignationController();
@@ -26,6 +27,7 @@ const attendanceController=new AttendanceController();
 const leaveController=new LeaveController();
 const salaryController=new SalaryController();
 const permissionController=new PermissionController();
+const organizationController=new OrganizationController();
 
 const directChatController = new DirectChatController();
 const directMessageController = new DirectMessageController();
@@ -33,7 +35,7 @@ const groupChatController = new GroupChatController();
 const groupMemberController = new GroupMemberController();
 const groupMessageController = new GroupMessageController();
 
-router.use("/users",userController.router);
+router.use("/auth", authController.router);
 router.use("/employees",authMiddleware,employeeController.router);
 router.use("/departments",authMiddleware,departmentController.router);
 router.use("/designations",authMiddleware,designationController.router);
@@ -42,6 +44,7 @@ router.use("/attendance",authMiddleware,attendanceController.router);
 router.use("/leaves",authMiddleware,leaveController.router);
 router.use("/salaries",authMiddleware,salaryController.router);
 router.use("/permissions",authMiddleware,permissionController.router);
+router.use("/organizations",authMiddleware,organizationController.router);
 
 router.use("/chat/direct", directChatController.router);
 router.use("/chat/direct-message", directMessageController.router);

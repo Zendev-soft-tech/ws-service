@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { User } from "@/src/adapters/models/User.js";
 import { Employee } from "@/src/adapters/models/Employee.js";
 import { Department } from "@/src/adapters/models/Department.js";
 import { Designation } from "@/src/adapters/models/Designation.js";
@@ -8,6 +7,7 @@ import { Location } from "@/src/adapters/models/Location.js";
 import { Attendance } from "@/src/adapters/models/Attendance.js";
 import { Leave } from "@/src/adapters/models/Leave.js";
 import { Permission } from "@/src/adapters/models/Permission.js";
+import { Organization } from "@/src/adapters/models/Organization.js";
 
 import { DirectChat } from "@/src/adapters/models/DirectChat.js";
 import { DirectMessage } from "@/src/adapters/models/DirectMessage.js";
@@ -26,13 +26,13 @@ export const AppDataSource =new DataSource({
         synchronize: true,
         logging: false,
         entities: [
-            User,
             Employee,
             Department,
             Designation,
             Location,
             Attendance,
             Leave,
-            Permission
+            Permission,
+            Organization
         ]
     });
