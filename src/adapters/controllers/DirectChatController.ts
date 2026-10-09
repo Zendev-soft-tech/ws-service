@@ -10,29 +10,31 @@ export class DirectChatController {
     private directChatRepository: DirectChatRepository;
     constructor() {
         this.directChatRepository = new DirectChatRepository();
-        this.router.post( "/", this.createHandler.bind(this));
-        this.router.get( "/user/:userId", this.getAllHandler.bind(this));
-        this.router.get( "/:id", this.getByIdHandler.bind(this));
+        this.router.post("/", this.createHandler.bind(this));
+        this.router.get("/user/:userId", this.getAllHandler.bind(this));
+        this.router.get("/:id", this.getByIdHandler.bind(this));
     }
-    async createHandler(
-        req: Request,
-        res: Response
-    ): Promise<void> {
+    async createHandler(req: Request,res: Response): Promise<void> {
         try {
             const { userOneId, userTwoId } = req.body;
-            const usecase =  new CreateDirectChat( this.directChatRepository );
-            const chat = await usecase.execute( userOneId, userTwoId );
+            if (!userOneId || !userTwoId) {
+                throw new AppError("Both user IDs are required",400);
+            }
+            if (userOneId === userTwoId) {
+                throw new AppError("Users cannot create a chat with themselves",400);
+            }
+            const usecase = new CreateDirectChat(this.directChatRepository);
+            const chat = await usecase.execute(userOneId,userTwoId);
             res.status(201).json({
                 success: true,
                 data: chat
             });
         } catch (error: unknown) {
-            console.error( "DIRECT CHAT CREATE ERROR:", error);
+            console.error("DIRECT CHAT CREATE ERROR:", error);
             if (error instanceof AppError) {
                 res.status(error.errorCode).json({
                     success: false,
-                    message: error.message
-                });
+                    message: error.message });
                 return;
             }
             res.status(500).json({
@@ -41,23 +43,20 @@ export class DirectChatController {
             });
         }
     }
-    async getAllHandler(
-        req: Request,
-        res: Response
-    ): Promise<void> {
+    async getAllHandler(req: Request,res: Response): Promise<void> {
         try {
-            const userId = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+            const userId = Array.isArray(req.params.userId)? req.params.userId[0]: req.params.userId;
             if (!userId) {
-                throw new AppError( "User ID is required", 400);
+                throw new AppError("User ID is required",400);
             }
-            const usecase = new GetDirectChats( this.directChatRepository );
+            const usecase = new GetDirectChats(this.directChatRepository);
             const chats = await usecase.execute(userId);
             res.status(200).json({
                 success: true,
                 data: chats
             });
         } catch (error: unknown) {
-            console.error( "DIRECT CHAT GET ALL ERROR:", error );
+            console.error("DIRECT CHAT GET ALL ERROR:", error);
             if (error instanceof AppError) {
                 res.status(error.errorCode).json({
                     success: false,
@@ -71,28 +70,27 @@ export class DirectChatController {
             });
         }
     }
-    async getByIdHandler(
-        req: Request,
-        res: Response
-    ): Promise<void> {
+    async getByIdHandler(req: Request,res: Response): Promise<void> {
         try {
-            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+            const id = Array.isArray(req.params.id)? req.params.id[0]: req.params.id;
             if (!id) {
-                throw new AppError( "Chat ID is required", 400 );
+                throw new AppError("Chat ID is required",400);
             }
-            const usecase = new GetDirectChatById( this.directChatRepository );
+            const usecase = new GetDirectChatById(this.directChatRepository);
             const chat = await usecase.execute(id);
+            if (!chat) {
+                throw new AppError("Direct chat not found",404);
+            }
             res.status(200).json({
                 success: true,
                 data: chat
             });
         } catch (error: unknown) {
-            console.error( "DIRECT CHAT GET BY ID ERROR:", error);
+            console.error("DIRECT CHAT GET BY ID ERROR:", error);
             if (error instanceof AppError) {
                 res.status(error.errorCode).json({
                     success: false,
-                    message: error.message
-                });
+                    message: error.message});
                 return;
             }
             res.status(500).json({
