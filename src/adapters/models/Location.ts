@@ -1,6 +1,6 @@
-import {Entity,PrimaryGeneratedColumn,Column, OneToMany} from "typeorm";
+import {Entity,PrimaryGeneratedColumn,Column, OneToMany,ManyToOne} from "typeorm";
 import { Employee } from "@/src/adapters/models/Employee.js";
-
+import { Organization } from "@/src/adapters/models/Organization.js";
 @Entity("locations")
 export class Location {
 
@@ -29,5 +29,9 @@ export class Location {
         () => Employee,
         employee => employee.location
     )
+
+    @ManyToOne(() => Organization, organization => organization.locations)
+    organization!: Organization;
+
     employees!: Employee[];
 }

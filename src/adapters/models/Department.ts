@@ -1,6 +1,7 @@
 import {Entity,PrimaryGeneratedColumn,Column,ManyToOne,OneToMany} from "typeorm";
 import { Employee } from "@/src/adapters/models/Employee.js";
 import { Designation } from "@/src/adapters/models/Designation.js";
+import { Organization } from "@/src/adapters/models/Organization.js";
 
 @Entity("departments")
 export class Department {
@@ -25,4 +26,10 @@ export class Department {
         designation => designation.department
     )
     designations!: Designation[];
+
+    @ManyToOne(
+        () => Organization,
+        organization => organization.departments
+    )
+    organization!: Organization;
 }
